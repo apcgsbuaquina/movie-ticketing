@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   RETRO CINEMA GLOBAL STYLES
+   ======================================== */
+
+@layer base {
+  body {
+    @apply bg-cinema-dark text-cinema-cream font-body antialiased;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(139, 38, 53, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(45, 106, 106, 0.05) 0%, transparent 50%);
+  }
+
+  ::selection {
+    background-color: rgba(196, 163, 90, 0.3);
+    color: #f5e6c8;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0d0d0d;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #c4a35a;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d4a574;
+  }
+}
+
+@layer components {
+  /* Film grain overlay */
+  .film-grain::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    animation: grain 0.5s steps(6) infinite;
+  }
+
+  /* Ticket stub perforation */
+  .ticket-stub {
+    position: relative;
+  }
+  .ticket-stub::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background:
+      radial-gradient(circle at 0 10px, transparent 6px, currentColor 6px, currentColor 7px, transparent 7px),
+      radial-gradient(circle at 0 30px, transparent 6px, currentColor 6px, currentColor 7px, transparent 7px);
+    background-size: 20px 40px;
+    background-repeat: repeat-y;
+  }
+
+  /* Retro halftone pattern */
+  .halftone-bg {
+    background-image: radial-gradient(circle, rgba(196, 163, 90, 0.06) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+
+  /* Retro glow effect */
+  .retro-glow {
+    transition: all 0.3s ease;
+  }
+  .retro-glow:hover {
+    box-shadow:
+      0 0 10px rgba(196, 163, 90, 0.4),
+      0 0 20px rgba(196, 163, 90, 0.2),
+      0 0 40px rgba(196, 163, 90, 0.1);
+  }
+
+  /* Retro red glow */
+  .retro-glow-red:hover {
+    box-shadow:
+      0 0 10px rgba(139, 38, 53, 0.5),
+      0 0 20px rgba(139, 38, 53, 0.3),
+      0 0 40px rgba(139, 38, 53, 0.1);
+  }
+
+  /* Jagged edge border (top) */
+  .jagged-top {
+    clip-path: polygon(
+      0% 8px, 4% 0%, 8% 8px, 12% 0%, 16% 8px, 20% 0%, 24% 8px, 28% 0%,
+      32% 8px, 36% 0%, 40% 8px, 44% 0%, 48% 8px, 52% 0%, 56% 8px, 60% 0%,
+      64% 8px, 68% 0%, 72% 8px, 76% 0%, 80% 8px, 84% 0%, 88% 8px, 92% 0%,
+      96% 8px, 100% 0%, 100% 100%, 0% 100%
+    );
+  }
+
+  /* Jagged edge border (bottom) */
+  .jagged-bottom {
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% calc(100% - 8px),
+      96% 100%, 92% calc(100% - 8px), 88% 100%, 84% calc(100% - 8px),
+      80% 100%, 76% calc(100% - 8px), 72% 100%, 68% calc(100% - 8px),
+      64% 100%, 60% calc(100% - 8px), 56% 100%, 52% calc(100% - 8px),
+      48% 100%, 44% calc(100% - 8px), 40% 100%, 36% calc(100% - 8px),
+      32% 100%, 28% calc(100% - 8px), 24% 100%, 20% calc(100% - 8px),
+      16% 100%, 12% calc(100% - 8px), 8% 100%, 4% calc(100% - 8px), 0% 100%
+    );
+  }
+
+  /* Jagged both sides */
+  .jagged-both {
+    clip-path: polygon(
+      0% 8px, 4% 0%, 8% 8px, 12% 0%, 16% 8px, 20% 0%, 24% 8px, 28% 0%,
+      32% 8px, 36% 0%, 40% 8px, 44% 0%, 48% 8px, 52% 0%, 56% 8px, 60% 0%,
+      64% 8px, 68% 0%, 72% 8px, 76% 0%, 80% 8px, 84% 0%, 88% 8px, 92% 0%,
+      96% 8px, 100% 0%, 100% calc(100% - 8px),
+      96% 100%, 92% calc(100% - 8px), 88% 100%, 84% calc(100% - 8px),
+      80% 100%, 76% calc(100% - 8px), 72% 100%, 68% calc(100% - 8px),
+      64% 100%, 60% calc(100% - 8px), 56% 100%, 52% calc(100% - 8px),
+      48% 100%, 44% calc(100% - 8px), 40% 100%, 36% calc(100% - 8px),
+      32% 100%, 28% calc(100% - 8px), 24% 100%, 20% calc(100% - 8px),
+      16% 100%, 12% calc(100% - 8px), 8% 100%, 4% calc(100% - 8px), 0% 100%
+    );
+  }
+
+  /* Vintage divider */
+  .vintage-divider {
+    @apply relative flex items-center my-6;
+  }
+  .vintage-divider::before,
+  .vintage-divider::after {
+    content: '';
+    @apply flex-1 border-t border-cinema-gold/30;
+  }
+  .vintage-divider::before {
+    @apply mr-4;
+  }
+  .vintage-divider::after {
+    @apply ml-4;
+  }
+
+  /* Screen shape for seat map */
+  .cinema-screen {
+    background: linear-gradient(180deg, rgba(196, 163, 90, 0.8) 0%, rgba(196, 163, 90, 0.2) 100%);
+    border-radius: 0 0 50% 50% / 0 0 40px 40px;
+    box-shadow: 0 5px 30px rgba(196, 163, 90, 0.3);
+  }
+
+  /* Seat styles */
+  .seat {
+    @apply w-8 h-8 rounded-t-lg cursor-pointer transition-all duration-200 flex items-center justify-center text-xs font-bold;
+    border: 2px solid transparent;
+  }
+  .seat-available {
+    @apply bg-cinema-navy border-cinema-teal/50 text-cinema-cream/60 hover:bg-cinema-teal/40 hover:border-cinema-gold;
+  }
+  .seat-vip {
+    @apply bg-cinema-burgundy/40 border-cinema-gold/50 text-cinema-gold/60 hover:bg-cinema-gold/30 hover:border-cinema-gold;
+  }
+  .seat-selected {
+    @apply bg-cinema-gold text-cinema-dark border-cinema-gold animate-seat-pop;
+    box-shadow: 0 0 12px rgba(196, 163, 90, 0.5);
+  }
+  .seat-taken {
+    @apply bg-cinema-charcoal/50 text-cinema-charcoal cursor-not-allowed border-cinema-charcoal/30;
+  }
+
+  /* Marquee text container */
+  .marquee-container {
+    @apply overflow-hidden whitespace-nowrap;
+  }
+  .marquee-text {
+    @apply inline-block animate-marquee;
+  }
+
+  /* Movie poster placeholder */
+  .poster-placeholder {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #2d6a6a 100%);
+    @apply flex items-center justify-center;
+  }
+}
+
+@layer utilities {
+  .text-shadow-retro {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  .text-shadow-glow {
+    text-shadow:
+      0 0 10px rgba(196, 163, 90, 0.5),
+      0 0 20px rgba(196, 163, 90, 0.3);
+  }
+  .border-retro {
+    border: 1px solid rgba(196, 163, 90, 0.3);
+  }
+}
