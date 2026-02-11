@@ -79,66 +79,7 @@ VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-### 3. Supabase Configuration
-
-#### Enable Auth
-- Go to **Authentication > Settings** in Supabase Dashboard
-- Enable **Email** provider
-
-#### Row Level Security (RLS)
-For development, you may want to disable RLS or set permissive policies. For production, add appropriate policies:
-
-```sql
--- Example: Allow authenticated users to read movies
-ALTER TABLE movies ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view movies" ON movies FOR SELECT USING (true);
-
--- Example: Allow authenticated users to read sessions
-ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view sessions" ON sessions FOR SELECT USING (true);
-
--- Example: Allow authenticated users to read seats
-ALTER TABLE seats ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view seats" ON seats FOR SELECT USING (true);
-
--- Example: Allow authenticated users to read screens
-ALTER TABLE screens ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view screens" ON screens FOR SELECT USING (true);
-
--- Allow customers to create their own bookings
-ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own bookings" ON bookings FOR SELECT USING (true);
-CREATE POLICY "Users can create bookings" ON bookings FOR INSERT WITH CHECK (true);
-
--- Allow ticket creation
-ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view tickets" ON tickets FOR SELECT USING (true);
-CREATE POLICY "Users can create tickets" ON tickets FOR INSERT WITH CHECK (true);
-
--- Users and customers
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public user operations" ON users FOR ALL USING (true);
-
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public customer operations" ON customers FOR ALL USING (true);
-
-ALTER TABLE loyaltyprofiles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public loyalty operations" ON loyaltyprofiles FOR ALL USING (true);
-
-ALTER TABLE revenue ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admins can view revenue" ON revenue FOR SELECT USING (true);
-```
-
-> **Note**: The policies above are permissive for development. Tighten them for production.
-
-#### Create an Admin User
-After registering a user through the app, promote them to Admin:
-
-```sql
-UPDATE users SET role = 'Admin' WHERE username = 'admin@example.com';
-```
-
-### 4. Run Development Server
+### 3. Run Development Server
 
 ```bash
 npm run dev
@@ -216,18 +157,6 @@ src/
         └── ViewRevenue.jsx            # Revenue reports
 ```
 
-## Design Theme
-
-**Vintage Retro Cinema** aesthetic featuring:
-- Muted reds, cream, sepia, teal, and faded gold color palette
-- Playfair Display headings, Source Serif body text, Special Elite accents
-- Film grain overlay effect
-- Jagged ticket-stub edge patterns
-- Halftone dot background patterns
-- Retro glow hover effects
-- Animated seat selection with pop effects
-- Flickering neon-style text animations
-- Smooth page transitions
 
 ## License
 
