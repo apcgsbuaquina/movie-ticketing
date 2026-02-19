@@ -141,8 +141,18 @@ export function AuthProvider({ children }) {
         setProfile({ users: userRow });
       }
     } else {
-      // Staff / Admin — no customer record
-      setProfile({ users: userRow });
+      // Staff / Admin — fetch staff profile and merge with users row
+      const { data: staffProfile, error: staffErr } = await supabase
+        .from('staff')
+        .select('*')
+        .eq('staffid', uid)
+        .maybeSingle();
+
+      if (staffErr) {
+        console.error('Error fetching staff profile:', staffErr);
+      }
+
+      setProfile({ ...(staffProfile || {}), users: userRow });
     }
   }
 

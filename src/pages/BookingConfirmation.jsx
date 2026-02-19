@@ -57,8 +57,9 @@ export default function BookingConfirmation() {
       </div>
 
       {/* Tickets */}
-      <div className="space-y-3 mb-8">
+      <div className="mb-8">
         <h2 className="font-heading text-lg font-bold text-cinema-gold">Your Tickets</h2>
+        <div className="mt-3 space-y-3">
         {booking.tickets?.map((ticket) => (
           <div key={ticket.ticketid} className="jagged-both">
             <RetroTicket
@@ -71,6 +72,7 @@ export default function BookingConfirmation() {
             />
           </div>
         ))}
+        </div>
       </div>
 
       {/* Details */}

@@ -10,27 +10,29 @@ export default function BookingSummary({ session, selectedSeats, ticketDetails, 
       </h3>
 
       <div className="space-y-1 text-sm font-body">
-        <div className="flex justify-between">
+        <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
           <span className="text-cinema-cream/60">Movie</span>
-          <span className="text-cinema-cream font-semibold">{movie?.title}</span>
+          <span className="text-cinema-cream font-semibold text-right break-words min-w-0 max-w-full sm:max-w-[65%]">
+            {movie?.title}
+          </span>
         </div>
         {screen && (
-          <div className="flex justify-between">
+          <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
             <span className="text-cinema-cream/60">Screen</span>
-            <span className="text-cinema-cream">
+            <span className="text-cinema-cream text-right break-words min-w-0 max-w-full sm:max-w-[65%]">
               {screen.cinemabranch} — #{screen.screennumber} ({screen.screentype})
             </span>
           </div>
         )}
         {session?.experience && (
-          <div className="flex justify-between">
+          <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
             <span className="text-cinema-cream/60">Experience</span>
-            <span className="text-cinema-cream">{session.experience}</span>
+            <span className="text-cinema-cream text-right break-words min-w-0 max-w-full sm:max-w-[65%]">{session.experience}</span>
           </div>
         )}
-        <div className="flex justify-between">
+        <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
           <span className="text-cinema-cream/60">Seats</span>
-          <span className="text-cinema-cream">
+          <span className="text-cinema-cream text-right break-words min-w-0 max-w-full sm:max-w-[65%]">
             {selectedSeats.map((s) => `${s.rowchar}${s.seatnumber}`).join(', ')}
           </span>
         </div>

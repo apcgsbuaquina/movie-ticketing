@@ -25,22 +25,22 @@ export default function RetroTicket({ ticket, booking, movie, session, seat, scr
           {movie?.title || 'Movie Title'}
         </h3>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-cinema-dark/70 font-body">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-cinema-dark/70 font-body min-w-0">
           {session?.starttime && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 min-w-0">
               <Clock size={12} />
               {format(new Date(session.starttime), 'MMM d, yyyy — h:mm a')}
             </span>
           )}
           {screen && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 min-w-0 break-words">
               <MapPin size={12} />
               {screen.cinemabranch} — Screen {screen.screennumber}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 min-w-0">
           {seat && (
             <span className="bg-cinema-dark text-cinema-cream px-2 py-0.5 text-xs font-accent tracking-wider">
               {seat.rowchar}{seat.seatnumber} ({seat.seattype})

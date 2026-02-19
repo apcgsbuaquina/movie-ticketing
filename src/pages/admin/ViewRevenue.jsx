@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useRevenue } from '../../hooks/useRevenue';
+import { useScreens } from '../../hooks/useScreens';
 import RetroInput from '../../components/ui/RetroInput';
+import RetroSelect from '../../components/ui/RetroSelect';
 import RetroButton from '../../components/ui/RetroButton';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Link } from 'react-router-dom';
@@ -15,7 +17,8 @@ import {
 } from 'lucide-react';
 
 export default function ViewRevenue() {
-  const { revenue, loading, fetchRevenue, getRevenueStats } = useRevenue();
+  const { revenue, loading, error, fetchRevenue, getRevenueStats } = useRevenue();
+  const { screens } = useScreens();
   const [branch, setBranch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -41,8 +44,8 @@ export default function ViewRevenue() {
 
   const stats = getRevenueStats();
 
-  // Get unique branches from revenue data
-  const branches = [...new Set(revenue.map((r) => r.cinemabranch).filter(Boolean))];
+  // Get unique branches from screens so dropdown remains populated
+  const branches = [...new Set(screens.map((s) => s.cinemabranch).filter(Boolean))].sort();
 
   return (
     <div className="animate-fade-in max-w-5xl mx-auto px-4 sm:px-6 py-8">
@@ -71,7 +74,7 @@ export default function ViewRevenue() {
           </div>
         </div>
         <div className="bg-cinema-navy/60 border border-cinema-gold/20 p-5 text-center">
-          <Ticket size={20} className="text-cinema-gold mx-auto mb-2" />
+          <CalendarRange size={20} className="text-cinema-gold mx-auto mb-2" />
           <div className="text-cinema-gold font-heading font-bold text-2xl">
             {stats.totalBookings}
           </div>
@@ -80,7 +83,7 @@ export default function ViewRevenue() {
           </div>
         </div>
         <div className="bg-cinema-navy/60 border border-cinema-gold/20 p-5 text-center">
-          <CalendarRange size={20} className="text-cinema-gold mx-auto mb-2" />
+          <Ticket size={20} className="text-cinema-gold mx-auto mb-2" />
           <div className="text-cinema-gold font-heading font-bold text-2xl">
             {stats.totalTickets}
           </div>
@@ -96,21 +99,13 @@ export default function ViewRevenue() {
           Filters
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <div>
-            <label className="block text-xs font-accent text-cinema-gold/60 mb-1 uppercase tracking-wider">
-              Branch
-            </label>
-            <select
-              className="w-full bg-cinema-dark border border-cinema-gold/30 text-cinema-cream px-3 py-2 text-sm font-body"
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-            >
-              <option value="">All Branches</option>
-              {branches.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-          </div>
+          <RetroSelect
+            label="Branch"
+            value={branch}
+            onChange={(e) => setBranch(e.target.value)}
+            options={branches.map((b) => ({ value: b, label: b }))}
+            placeholder="All Branches"
+          />
           <RetroInput
             label="Start Date"
             type="date"
@@ -124,11 +119,11 @@ export default function ViewRevenue() {
             onChange={(e) => setEndDate(e.target.value)}
           />
           <div className="flex items-end gap-2">
-            <RetroButton onClick={handleFilter} size="sm">
+            <RetroButton onClick={handleFilter} size="sm" className="min-h-[46px]">
               <Search size={14} />
               Filter
             </RetroButton>
-            <RetroButton onClick={handleReset} variant="ghost" size="sm">
+            <RetroButton onClick={handleReset} variant="ghost" size="sm" className="min-h-[46px]">
               Reset
             </RetroButton>
           </div>
@@ -138,6 +133,10 @@ export default function ViewRevenue() {
       {/* Revenue table */}
       {loading ? (
         <LoadingSpinner />
+      ) : error ? (
+        <p className="text-cinema-red font-accent text-center py-12">
+          Error loading revenue: {error}
+        </p>
       ) : revenue.length === 0 ? (
         <p className="text-cinema-cream/40 font-accent text-center py-12">
           No revenue data found.

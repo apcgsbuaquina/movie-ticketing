@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useBookings } from '../../hooks/useBookings';
 import RetroButton from '../../components/ui/RetroButton';
-import RetroSelect from '../../components/ui/RetroSelect';
+import RetroModal from '../../components/ui/RetroModal';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
@@ -25,23 +25,46 @@ const STATUS_OPTIONS = [
 export default function ManageBookings() {
   const { bookings, loading, fetchAllBookings, updateBookingPayment } = useBookings();
   const [filter, setFilter] = useState('');
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchAllBookings();
   }, []);
 
+  // Debug: log the actual paymentstatus values from DB
+  useEffect(() => {
+    if (bookings.length > 0) {
+      console.log('Booking statuses:', bookings.map(b => ({ id: b.bookingid, status: b.paymentstatus, keys: Object.keys(b) })));
+    }
+  }, [bookings]);
+
   async function handleStatusChange(bookingId, newStatus) {
+    setUpdating(true);
     try {
       await updateBookingPayment(bookingId, newStatus);
       toast.success(`Booking #${bookingId} updated to ${newStatus}`);
       await fetchAllBookings();
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setUpdating(false);
     }
   }
 
+  function requestConfirmation(booking, status) {
+    setConfirmAction({ booking, status });
+  }
+
+  async function confirmStatusChange() {
+    if (!confirmAction) return;
+
+    await handleStatusChange(confirmAction.booking.bookingid, confirmAction.status);
+    setConfirmAction(null);
+  }
+
   const filtered = filter
-    ? bookings.filter((b) => b.paymentstatus === filter)
+    ? bookings.filter((b) => (b.paymentstatus || '').toLowerCase() === filter.toLowerCase())
     : bookings;
 
   return (
@@ -86,8 +109,8 @@ export default function ManageBookings() {
               key={booking.bookingid}
               className="bg-cinema-navy/40 border border-cinema-gold/10 p-4"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-                <div className="space-y-1">
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] items-start gap-4 mb-3">
+                <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-cinema-cream/40 font-mono text-xs">
                       #{booking.bookingid}
@@ -136,7 +159,7 @@ export default function ManageBookings() {
                   </div>
                 </div>
 
-                <div className="text-right space-y-2">
+                <div className="text-right space-y-2 md:w-52 md:shrink-0">
                   <div className="text-cinema-gold font-heading font-bold text-xl">
                     ₱{Number(booking.totalamount).toFixed(2)}
                   </div>
@@ -145,10 +168,11 @@ export default function ManageBookings() {
                   </div>
 
                   {/* Quick actions */}
-                  <div className="flex items-center gap-1 justify-end">
+                  <div className="flex flex-wrap items-center gap-1 justify-end">
                     {booking.paymentstatus === 'Pending' && (
                       <RetroButton
                         size="sm"
+                        className="whitespace-nowrap shrink-0"
                         onClick={() => handleStatusChange(booking.bookingid, 'Paid')}
                       >
                         <CheckCircle size={12} />
@@ -159,7 +183,8 @@ export default function ManageBookings() {
                       <RetroButton
                         size="sm"
                         variant="secondary"
-                        onClick={() => handleStatusChange(booking.bookingid, 'Refunded')}
+                        className="whitespace-nowrap shrink-0"
+                        onClick={() => requestConfirmation(booking, 'Refunded')}
                       >
                         <RotateCcw size={12} />
                         Refund
@@ -169,7 +194,8 @@ export default function ManageBookings() {
                       <RetroButton
                         size="sm"
                         variant="danger"
-                        onClick={() => handleStatusChange(booking.bookingid, 'Cancelled')}
+                        className="whitespace-nowrap shrink-0"
+                        onClick={() => requestConfirmation(booking, 'Cancelled')}
                       >
                         <XCircle size={12} />
                         Cancel
@@ -182,6 +208,44 @@ export default function ManageBookings() {
           ))}
         </div>
       )}
+
+      <RetroModal
+        isOpen={Boolean(confirmAction)}
+        onClose={() => !updating && setConfirmAction(null)}
+        title={confirmAction?.status === 'Refunded' ? 'Confirm Refund' : 'Confirm Cancellation'}
+        size="sm"
+      >
+        {confirmAction && (
+          <div className="space-y-4">
+            <p className="text-cinema-cream/80 font-body text-sm leading-relaxed">
+              Are you sure you want to mark booking #{confirmAction.booking.bookingid} as{' '}
+              <span className="text-cinema-gold font-semibold">{confirmAction.status}</span>?
+            </p>
+            <p className="text-cinema-cream/50 font-accent text-xs">
+              This action can affect reporting and customer records.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <RetroButton
+                size="sm"
+                variant="ghost"
+                onClick={() => setConfirmAction(null)}
+                disabled={updating}
+              >
+                No, keep it
+              </RetroButton>
+              <RetroButton
+                size="sm"
+                variant={confirmAction.status === 'Cancelled' ? 'danger' : 'secondary'}
+                onClick={confirmStatusChange}
+                disabled={updating}
+              >
+                {updating ? 'Updating...' : 'Yes, proceed'}
+              </RetroButton>
+            </div>
+          </div>
+        )}
+      </RetroModal>
     </div>
   );
 }

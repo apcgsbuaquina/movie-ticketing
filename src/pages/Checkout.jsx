@@ -102,7 +102,17 @@ export default function Checkout() {
       navigate(`/booking-confirmation/${booking.bookingid}`);
     } catch (err) {
       console.error('Booking error:', err);
-      toast.error(err.message || 'Failed to create booking');
+      const message = err?.message || '';
+      if (
+        message.includes('already taken') ||
+        message.includes('just booked by someone else') ||
+        message.includes('unique_seat_per_session')
+      ) {
+        toast.error('Some seats are no longer available. Please reselect your seats.');
+        navigate(`/seat-selection/${session.sessionid}`);
+      } else {
+        toast.error(message || 'Failed to create booking');
+      }
     } finally {
       setSubmitting(false);
     }

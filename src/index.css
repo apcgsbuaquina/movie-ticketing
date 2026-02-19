@@ -7,6 +7,10 @@
    ======================================== */
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     @apply bg-cinema-dark text-cinema-cream font-body antialiased;
     background-image:

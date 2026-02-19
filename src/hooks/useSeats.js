@@ -29,25 +29,35 @@ export function useSeats(screenId = null) {
   }, [screenId]);
 
   async function fetchTakenSeats(sessionId) {
-    const { data, error: err } = await supabase
-      .from('tickets')
-      .select('seatid')
-      .eq('bookingid', supabase.rpc ? undefined : undefined); // We need to get tickets for a session
+    const { data: rpcData, error: rpcErr } = await supabase
+      .rpc('get_taken_seat_ids', { p_sessionid: sessionId });
 
-    // Actually, tickets don't directly have sessionid,
-    // but we can get them via bookings for that session
+    if (!rpcErr) {
+      const taken = new Set((rpcData || []).map((row) => row.seatid));
+      setTakenSeatIds(taken);
+      return taken;
+    }
+
+    // Fallback if RPC has not been created yet.
     const { data: tickets, error: ticketErr } = await supabase
       .from('tickets')
-      .select('seatid, bookings!inner(sessionid, paymentstatus)')
-      .not('bookings.paymentstatus', 'in', '("Cancelled","Refunded")')
-      .eq('bookings.sessionid', sessionId);
+      .select('seatid, bookings(paymentstatus)')
+      .eq('sessionid', sessionId);
 
     if (ticketErr) {
       console.error('Error fetching taken seats:', ticketErr);
       return;
     }
 
-    const taken = new Set((tickets || []).map((t) => t.seatid));
+    const taken = new Set(
+      (tickets || [])
+        .filter((t) => {
+          const status = t.bookings?.paymentstatus;
+          if (!status) return true;
+          return status !== 'Cancelled' && status !== 'Refunded';
+        })
+        .map((t) => t.seatid)
+    );
     setTakenSeatIds(taken);
     return taken;
   }

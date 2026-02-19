@@ -8,6 +8,7 @@ import SeatMap from '../components/seats/SeatMap';
 import SeatLegend from '../components/seats/SeatLegend';
 import RetroButton from '../components/ui/RetroButton';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import toast from 'react-hot-toast';
 import { ArrowLeft, Film, Monitor, Clock, Wallet } from 'lucide-react';
 
 export default function SeatSelection() {
@@ -47,8 +48,22 @@ export default function SeatSelection() {
     loadData();
   }, [sessionId]);
 
-  function handleProceed() {
+  async function handleProceed() {
     if (selectedSeats.length === 0) return;
+
+    const latestTaken = await fetchTakenSeats(session.sessionid);
+    if (latestTaken) {
+      const conflicted = selectedSeats.filter((seat) => latestTaken.has(seat.seatid));
+      if (conflicted.length > 0) {
+        const conflictedLabels = conflicted
+          .map((seat) => `${seat.rowchar}${seat.seatnumber}`)
+          .join(', ');
+
+        setSelectedSeats((prev) => prev.filter((seat) => !latestTaken.has(seat.seatid)));
+        toast.error(`Seat(s) ${conflictedLabels} were just taken. Please choose other seats.`);
+        return;
+      }
+    }
 
     // Store selection in sessionStorage for checkout
     sessionStorage.setItem(
@@ -143,10 +158,10 @@ export default function SeatSelection() {
         </div>
 
         {/* Selection summary & proceed */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-cinema-dark/50 border border-cinema-gold/15 p-4">
-          <div>
+        <div className="mt-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 bg-cinema-dark/50 border border-cinema-gold/15 p-4">
+          <div className="w-full min-w-0">
             {selectedSeats.length > 0 ? (
-              <div>
+              <div className="leading-relaxed break-words">
                 <span className="text-cinema-cream/60 font-accent text-sm">Selected: </span>
                 {selectedSeats.map((seat, i) => (
                   <span key={seat.seatid} className="text-cinema-gold font-heading font-bold">
@@ -169,6 +184,7 @@ export default function SeatSelection() {
             onClick={handleProceed}
             disabled={selectedSeats.length === 0}
             size="lg"
+            className="w-full sm:w-auto sm:shrink-0"
           >
             Proceed to Checkout
           </RetroButton>

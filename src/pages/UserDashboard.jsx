@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function UserDashboard() {
-  const { user, profile, customerId } = useAuth();
+  const { user, profile, customerId, userRole } = useAuth();
   const { bookings, loading, fetchBookings } = useBookings(customerId);
   const { loyalty, fetchLoyalty, tierColors, tierBorderColors } = useLoyalty(customerId);
 
@@ -27,7 +27,25 @@ export default function UserDashboard() {
       fetchBookings();
       fetchLoyalty();
     }
-  }, [customerId]);
+  }, [customerId, fetchBookings, fetchLoyalty]);
+
+  const isCustomerDashboard = userRole === 'Customer' && Boolean(customerId);
+
+  const firstName = profile?.firstname || profile?.first_name || profile?.users?.firstname || '';
+  const middleName = profile?.middlename || profile?.middle_name || profile?.users?.middlename || '';
+  const lastName = profile?.lastname || profile?.last_name || profile?.users?.lastname || '';
+  const suffix = profile?.suffix || profile?.users?.suffix || '';
+  const displayName =
+    [firstName, middleName, lastName].filter(Boolean).join(' ') ||
+    profile?.users?.username ||
+    user?.email?.split('@')?.[0] ||
+    'N/A';
+
+  const displayEmail = profile?.email || profile?.users?.email || user?.email || 'N/A';
+  const displayPhone =
+    profile?.phonenumber || profile?.phone || profile?.contactnumber || profile?.users?.phonenumber || null;
+  const dateOfBirth = profile?.dateofbirth || profile?.date_of_birth || null;
+  const joinDate = profile?.joindate || profile?.join_date || profile?.createdat || profile?.created_at || null;
 
   const statusColors = {
     Pending: 'bg-yellow-600/20 text-yellow-400',
@@ -53,24 +71,26 @@ export default function UserDashboard() {
           {profile ? (
             <div className="space-y-2 text-sm font-body">
               <p className="text-cinema-cream font-semibold text-lg">
-                {profile.firstname} {profile.middlename ? profile.middlename + ' ' : ''}{profile.lastname}
-                {profile.suffix ? ` ${profile.suffix}` : ''}
+                {displayName}
+                {suffix ? ` ${suffix}` : ''}
               </p>
               <p className="text-cinema-cream/60 flex items-center gap-1.5">
                 <Mail size={13} />
-                {profile.email}
+                {displayEmail}
               </p>
-              <p className="text-cinema-cream/60 flex items-center gap-1.5">
-                <Phone size={13} />
-                {profile.phonenumber}
-              </p>
+              {displayPhone && (
+                <p className="text-cinema-cream/60 flex items-center gap-1.5">
+                  <Phone size={13} />
+                  {displayPhone}
+                </p>
+              )}
               <p className="text-cinema-cream/60 flex items-center gap-1.5">
                 <Calendar size={13} />
-                Born {profile.dateofbirth ? format(new Date(profile.dateofbirth), 'MMMM d, yyyy') : 'N/A'}
+                Born {dateOfBirth ? format(new Date(dateOfBirth), 'MMMM d, yyyy') : 'N/A'}
               </p>
-              {profile.joindate && (
+              {joinDate && (
                 <p className="text-cinema-cream/40 text-xs font-accent mt-2">
-                  Member since {format(new Date(profile.joindate), 'MMMM yyyy')}
+                  Member since {format(new Date(joinDate), 'MMMM yyyy')}
                 </p>
               )}
             </div>
@@ -89,7 +109,7 @@ export default function UserDashboard() {
             <Crown size={16} />
             Loyalty Program
           </h2>
-          {loyalty ? (
+          {isCustomerDashboard && loyalty ? (
             <div className="space-y-3">
               <div className="text-center py-2">
                 <span
@@ -125,7 +145,9 @@ export default function UserDashboard() {
               </div>
             </div>
           ) : (
-            <p className="text-cinema-cream/40 text-sm">No loyalty profile found.</p>
+            <p className="text-cinema-cream/40 text-sm">
+              {isCustomerDashboard ? 'No loyalty profile found.' : 'Loyalty rewards are available for customer accounts only.'}
+            </p>
           )}
         </div>
 
@@ -138,18 +160,18 @@ export default function UserDashboard() {
           <div className="space-y-3">
             <div className="bg-cinema-dark/50 p-3 text-center">
               <div className="text-cinema-gold font-heading font-bold text-2xl">
-                {bookings.length}
+                {isCustomerDashboard ? bookings.length : userRole || 'N/A'}
               </div>
               <div className="text-cinema-cream/40 font-accent text-xs uppercase tracking-wider">
-                Total Bookings
+                {isCustomerDashboard ? 'Total Bookings' : 'Account Role'}
               </div>
             </div>
             <div className="bg-cinema-dark/50 p-3 text-center">
               <div className="text-cinema-gold font-heading font-bold text-2xl">
-                {bookings.reduce((sum, b) => sum + (b.tickets?.length || 0), 0)}
+                {isCustomerDashboard ? bookings.reduce((sum, b) => sum + (b.tickets?.length || 0), 0) : (profile?.staffid || user?.id?.slice(0, 8) || 'N/A')}
               </div>
               <div className="text-cinema-cream/40 font-accent text-xs uppercase tracking-wider">
-                Total Tickets
+                {isCustomerDashboard ? 'Total Tickets' : 'Account ID'}
               </div>
             </div>
           </div>
@@ -166,7 +188,11 @@ export default function UserDashboard() {
           <div className="flex-1 h-px bg-cinema-gold/20" />
         </div>
 
-        {loading ? (
+        {!isCustomerDashboard ? (
+          <div className="text-center py-12">
+            <p className="text-cinema-cream/40 font-accent">Booking history is available for customer accounts.</p>
+          </div>
+        ) : loading ? (
           <LoadingSpinner text="Loading bookings..." />
         ) : bookings.length === 0 ? (
           <div className="text-center py-12">
@@ -210,7 +236,7 @@ export default function UserDashboard() {
                 </div>
 
                 {/* Tickets */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {booking.tickets?.map((ticket) => (
                     <div key={ticket.ticketid} className="jagged-both">
                       <RetroTicket
