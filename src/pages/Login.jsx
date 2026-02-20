@@ -5,7 +5,7 @@ import RetroInput from '../components/ui/RetroInput';
 import RetroButton from '../components/ui/RetroButton';
 import FilmGrain from '../components/ui/FilmGrain';
 import toast from 'react-hot-toast';
-import { Film, LogIn } from 'lucide-react';
+import { Film, LogIn, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -13,6 +13,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -60,14 +61,39 @@ export default function Login() {
               required
             />
 
-            <RetroInput
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="space-y-1">
+              <label className="block text-sm font-accent text-cinema-gold/80 tracking-wider uppercase">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="
+                    w-full px-4 py-2.5 pr-12
+                    bg-cinema-dark/80 border-2 border-cinema-gold/30
+                    text-cinema-cream font-body
+                    placeholder:text-cinema-cream/30
+                    focus:outline-none focus:border-cinema-gold focus:shadow-[0_0_10px_rgba(196,163,90,0.2)]
+                    transition-all duration-300
+                  "
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="
+                    absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center
+                    text-cinema-gold hover:text-cinema-sepia transition-all duration-300
+                  "
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
 
             <RetroButton
               type="submit"

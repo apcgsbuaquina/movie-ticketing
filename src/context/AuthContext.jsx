@@ -141,7 +141,7 @@ export function AuthProvider({ children }) {
         setProfile({ users: userRow });
       }
     } else {
-      // Staff / Admin — fetch staff profile and merge with users row
+      // Staff / Admin — fetch staff profile, then merge customer fields if present
       const { data: staffProfile, error: staffErr } = await supabase
         .from('staff')
         .select('*')
@@ -152,7 +152,17 @@ export function AuthProvider({ children }) {
         console.error('Error fetching staff profile:', staffErr);
       }
 
-      setProfile({ ...(staffProfile || {}), users: userRow });
+      const { data: customer, error: customerErr } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('customerid', uid)
+        .maybeSingle();
+
+      if (customerErr) {
+        console.error('Error fetching customer profile for staff:', customerErr);
+      }
+
+      setProfile({ ...(customer || {}), ...(staffProfile || {}), users: userRow });
     }
   }
 

@@ -37,6 +37,11 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #d4a574;
   }
+
+  /* Hide calendar icon from date inputs */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+  }
 }
 
 @layer components {

@@ -15,6 +15,8 @@ import {
   Calendar,
   Phone,
   Mail,
+  Briefcase,
+  MapPin,
 } from 'lucide-react';
 
 export default function UserDashboard() {
@@ -37,6 +39,7 @@ export default function UserDashboard() {
   const suffix = profile?.suffix || profile?.users?.suffix || '';
   const displayName =
     [firstName, middleName, lastName].filter(Boolean).join(' ') ||
+    profile?.fullname ||
     profile?.users?.username ||
     user?.email?.split('@')?.[0] ||
     'N/A';
@@ -44,6 +47,8 @@ export default function UserDashboard() {
   const displayEmail = profile?.email || profile?.users?.email || user?.email || 'N/A';
   const displayPhone =
     profile?.phonenumber || profile?.phone || profile?.contactnumber || profile?.users?.phonenumber || null;
+  const staffPosition = profile?.position || null;
+  const staffBranch = profile?.branch || null;
   const dateOfBirth = profile?.dateofbirth || profile?.date_of_birth || null;
   const joinDate = profile?.joindate || profile?.join_date || profile?.createdat || profile?.created_at || null;
 
@@ -82,6 +87,18 @@ export default function UserDashboard() {
                 <p className="text-cinema-cream/60 flex items-center gap-1.5">
                   <Phone size={13} />
                   {displayPhone}
+                </p>
+              )}
+              {staffPosition && (
+                <p className="text-cinema-cream/60 flex items-center gap-1.5">
+                  <Briefcase size={13} />
+                  {staffPosition}
+                </p>
+              )}
+              {staffBranch && (
+                <p className="text-cinema-cream/60 flex items-center gap-1.5">
+                  <MapPin size={13} />
+                  {staffBranch}
                 </p>
               )}
               <p className="text-cinema-cream/60 flex items-center gap-1.5">
